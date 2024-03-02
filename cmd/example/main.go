@@ -22,10 +22,10 @@ func main() {
 	}
 
 	// Get Live Capacity at Gym
-	liveCapacity, err := pureGym.GetLiveCapacity()
+	gymAttendance, err := pureGym.GetGymAttendance()
 	if err != nil {
 		log.Printf("unable to fetch live capacity: %s", err.Error())
 	}
 
-	log.Printf("Total number of people inside the Gym: %d", liveCapacity)
+	log.Printf("Total number of people inside the Gym: %d", gymAttendance.TotalPeopleInGym)
 }
