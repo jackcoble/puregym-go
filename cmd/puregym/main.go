@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -12,7 +13,9 @@ import (
 )
 
 const (
-	AUTH_URL = "https://auth.puregym.com/connect/token"
+	AUTH_URL       = "https://auth.puregym.com/connect/token"
+	GYM_API_URL    = "https://capi.puregym.com/api/v1/gyms"
+	MEMBER_API_URL = "https://capi.puregym.com/api/v1/member"
 )
 
 // Client represents the PureGym API Client
@@ -55,7 +58,6 @@ func (c *Client) Authenticate() error {
 
 	// Set the Request headers
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Add("User-Agent", "PureGym/1523 CFNetwork/1312 Darwin/21.0.0")
 
 	// Send the request
 	client := &http.Client{}
@@ -86,4 +88,32 @@ func (c *Client) GetAccessToken() (string, error) {
 	}
 
 	return c.accessToken, nil
+}
+
+// Get member information
+func (c *Client) GetMemberInfo() (*types.MemberResponse, error) {
+	// Create the GET request
+	req, err := http.NewRequest("GET", MEMBER_API_URL, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	// Set the Access token
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.accessToken))
+
+	// Make the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Marshal response into JSON
+	var memberInfoResponse types.MemberResponse
+	if err := json.NewDecoder(resp.Body).Decode(&memberInfoResponse); err != nil {
+		return nil, err
+	}
+
+	return &memberInfoResponse, nil
 }
