@@ -1,4 +1,4 @@
-package main
+package puregym
 
 import (
 	"bytes"
@@ -14,19 +14,27 @@ const (
 )
 
 // Client represents the PureGym API Client
-type Client struct{}
+type Client struct {
+	Email string
+	PIN   string
+
+	AccessToken string
+}
 
 // Return a new Client
-func NewClient() *Client {
-	return &Client{}
+func NewClient(email string, pin string) *Client {
+	return &Client{
+		Email: email,
+		PIN:   pin,
+	}
 }
 
 // Authenticate against the PureGym API to return an Access Token
-func (c *Client) Authenticate(email string, pin string) (*types.AuthenticateResponse, error) {
+func (c *Client) Authenticate() (*types.AuthenticateResponse, error) {
 	// Construct the URL Encoded Form request
 	requestBody := types.AuthenticateRequest{
-		Username:  email,
-		Password:  pin,
+		Username:  c.Email,
+		Password:  c.Email,
 		GrantType: "password",
 		Scope:     "pgcapi",
 		ClientID:  "ro.client",
