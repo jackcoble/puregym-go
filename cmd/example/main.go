@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/jackcoble/puregym-go/cmd/puregym"
+	"github.com/jackcoble/puregym-go"
 )
 
 func main() {
