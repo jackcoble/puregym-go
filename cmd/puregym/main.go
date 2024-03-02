@@ -24,6 +24,7 @@ type Client struct {
 	pin   string
 
 	accessToken string
+	homeGymId   int
 }
 
 // Return a new Client
@@ -116,4 +117,15 @@ func (c *Client) GetMemberInfo() (*types.MemberResponse, error) {
 	}
 
 	return &memberInfoResponse, nil
+}
+
+// Set the home gym in the Client for the user
+func (c *Client) SetHomeGym() error {
+	memberInfo, err := c.GetMemberInfo()
+	if err != nil {
+		return err
+	}
+
+	c.homeGymId = memberInfo.HomeGymID
+	return nil
 }
