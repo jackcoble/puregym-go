@@ -28,11 +28,20 @@ type Client struct {
 }
 
 // Return a new Client
-func NewClient(email string, pin string) *Client {
+func NewClient(email string, pin string) (*Client, error) {
+	// Ensure the Email and PIN are not empty
+	if len(strings.TrimSpace(email)) == 0 {
+		return nil, errors.New("email address not provided")
+	}
+
+	if len(strings.TrimSpace(pin)) == 0 {
+		return nil, errors.New("pin not provided")
+	}
+
 	return &Client{
 		email: email,
 		pin:   pin,
-	}
+	}, nil
 }
 
 // Authenticate against the PureGym API to return an Access Token
