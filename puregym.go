@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/go-querystring/query"
 	"github.com/jackcoble/puregym-go/pkg/types"
+	"github.com/lestrrat-go/jwx/v2/jwt"
 )
 
 const (
@@ -86,6 +87,22 @@ func (c *Client) Authenticate() error {
 	// Extract and set the Access Token for future requests
 	c.accessToken = authResponse.AccessToken
 
+	return nil
+}
+
+// Set an access token. If a token is already obtained, it can be re-used here.
+func (c *Client) SetAccessToken(token string) error {
+	// Parse the provided token into a JWT format
+	verifyOpt := jwt.WithVerify(false)
+	validateOpt := jwt.WithValidate(false)
+
+	_, err := jwt.ParseString(token, verifyOpt, validateOpt)
+	if err != nil {
+		return errors.New("unable to parse provided token: " + err.Error())
+	}
+
+	// Set the token for the client
+	c.accessToken = token
 	return nil
 }
 
