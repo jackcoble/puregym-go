@@ -3,7 +3,9 @@ package puregym
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/google/go-querystring/query"
 	"github.com/jackcoble/puregym-go/pkg/types"
@@ -73,4 +75,15 @@ func (c *Client) Authenticate() error {
 	c.accessToken = authResponse.AccessToken
 
 	return nil
+}
+
+// Returns the access token that was set during authentication.
+// The client will error if no access token is set.
+func (c *Client) GetAccessToken() (string, error) {
+	// Check if access token is set
+	if len(strings.TrimSpace(c.accessToken)) == 0 {
+		return "", errors.New("no access token set")
+	}
+
+	return c.accessToken, nil
 }
