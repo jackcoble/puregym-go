@@ -9,7 +9,11 @@ import (
 
 func main() {
 	// Create new instance of the PureGym API Client
-	pureGym := puregym.NewClient(os.Getenv("PUREGYM_EMAIL"), os.Getenv("PUREGYM_PIN"))
+	pureGym, err := puregym.NewClient(os.Getenv("PUREGYM_EMAIL"), os.Getenv("PUREGYM_PIN"))
+	if err != nil {
+		log.Fatalf("%s", err.Error())
+		return
+	}
 
 	// Authenticate against the API
 	if err := pureGym.Authenticate(); err != nil {
