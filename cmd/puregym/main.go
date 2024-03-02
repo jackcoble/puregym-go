@@ -129,3 +129,48 @@ func (c *Client) SetHomeGym() error {
 	c.homeGymId = memberInfo.HomeGymID
 	return nil
 }
+
+// Get the Live Capacity for the users Home Gym, or any ID provided
+func (c *Client) GetLiveCapacity(gymId ...int) (int, error) {
+	var gym int
+
+	// If gym IDs provided is zero, use the Home Gym
+	if len(gymId) == 0 {
+		// Check home gym is set
+		if c.homeGymId == 0 {
+			return 0, errors.New("home gym is not set within client")
+		}
+		gym = c.homeGymId
+	} else {
+		// Use the first provided Gym ID
+		gym = gymId[0]
+	}
+
+	// Construct the request URL for the Gym
+	requestUrl := fmt.Sprintf("%s/%d/attendance", GYM_API_URL, gym)
+
+	// Create the GET request
+	req, err := http.NewRequest("GET", requestUrl, nil)
+	if err != nil {
+		return 0, err
+	}
+
+	// Set the Access token
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.accessToken))
+
+	// Make the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, err
+	}
+	defer resp.Body.Close()
+
+	// Marshal response into JSON
+	var gymAttendanceResponse types.GymAttendanceResponse
+	if err := json.NewDecoder(resp.Body).Decode(&gymAttendanceResponse); err != nil {
+		return 0, err
+	}
+
+	return gymAttendanceResponse.TotalPeopleInGym, nil
+}
