@@ -1,16 +1,16 @@
 package puregym
 
 import (
-	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"strings"
 
-	"github.com/google/go-querystring/query"
 	"github.com/jackcoble/puregym-go/pkg/types"
 	"github.com/lestrrat-go/jwx/v2/jwt"
+	"golang.org/x/oauth2"
 )
 
 const (
@@ -45,47 +45,25 @@ func NewClient(email string, pin string) (*Client, error) {
 	}, nil
 }
 
-// Authenticate against the PureGym API to return an Access Token
-func (c *Client) Authenticate() error {
-	// Construct the URL Encoded Form request
-	requestBody := types.AuthenticateRequest{
-		Username:  c.email,
-		Password:  c.pin,
-		GrantType: "password",
-		Scope:     "pgcapi",
-		ClientID:  "ro.client",
+// Authenticate against the PureGym API via OAuth2 to return an Access Token
+func (c *Client) Authenticate(ctx context.Context) error {
+	authEndpoint := oauth2.Endpoint{
+		TokenURL: AUTH_URL,
 	}
 
-	vals, err := query.Values(requestBody)
+	conf := &oauth2.Config{
+		ClientID: "ro.client",
+		Scopes:   []string{"pgcapi"},
+		Endpoint: authEndpoint,
+	}
+
+	token, err := conf.PasswordCredentialsToken(ctx, c.email, c.pin)
 	if err != nil {
-		return err
-	}
-
-	// Create the HTTP POST request
-	req, err := http.NewRequest("POST", AUTH_URL, bytes.NewBuffer([]byte(vals.Encode())))
-	if err != nil {
-		return err
-	}
-
-	// Set the Request headers
-	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-
-	// Send the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	// Marshal response into JSON
-	var authResponse types.AuthenticateResponse
-	if err := json.NewDecoder(resp.Body).Decode(&authResponse); err != nil {
 		return err
 	}
 
 	// Extract and set the Access Token for future requests
-	c.accessToken = authResponse.AccessToken
+	c.accessToken = token.AccessToken
 
 	return nil
 }
