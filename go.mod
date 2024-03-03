@@ -3,7 +3,6 @@ module github.com/jackcoble/puregym-go
 go 1.22.0
 
 require (
-	github.com/google/go-querystring v1.1.0
 	github.com/lestrrat-go/jwx/v2 v2.0.20
 	golang.org/x/oauth2 v0.17.0
 )
