@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 
@@ -8,6 +9,8 @@ import (
 )
 
 func main() {
+	ctx := context.Background()
+
 	// Create new instance of the PureGym API Client
 	pureGym, err := puregym.NewClient(os.Getenv("PUREGYM_EMAIL"), os.Getenv("PUREGYM_PIN"))
 	if err != nil {
@@ -16,7 +19,7 @@ func main() {
 	}
 
 	// Authenticate against the API
-	if err := pureGym.Authenticate(); err != nil {
+	if err := pureGym.Authenticate(ctx); err != nil {
 		log.Fatalf("unable to authenticate: %s", err.Error())
 	}
 
@@ -31,5 +34,5 @@ func main() {
 		log.Printf("unable to fetch live capacity: %s", err.Error())
 	}
 
-	log.Printf("Total number of people inside the Gym: %d", gymAttendance.TotalPeopleInGym)
+	log.Printf("Total number of people inside the Gym: %d at %s", gymAttendance.TotalPeopleInGym, gymAttendance.AttendanceTime)
 }
